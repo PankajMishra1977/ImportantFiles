@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
-using ItpMicroController.Entities;
 
-namespace ItpMicroController
+
+namespace MyNameSpace
 {
     public class ApplicationSettings
     {
