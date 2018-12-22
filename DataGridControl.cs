@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace ItpMicroController
+namespace MyNameSpace
 {
     public class DataGridControl
     {
