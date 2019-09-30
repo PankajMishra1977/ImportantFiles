@@ -1,25 +1,30 @@
-﻿ string logFilePath = ApplicationSettings.GetSetttingValue("LogFilePath");
- LogWriter.CreateLogFile(logFilePath);
- LogWriter.AddSeperator();
+string logFilePath = ApplicationSettings.GetSetttingValue("LogFilePath");
+LogWriter.CreateLogFile(logFilePath);
+LogWriter.AddSeperator();
 
 
-
- DatabaseWrapper.GenerateDatabase();
- LogWriter.WriteToLog("program started");
-
-
- private readonly DataGridView _resultDataGridView;
-  public List<SearchRecord> SearchRecords { get; set; }
-
- _resultDataGridView = DataGridControl.Get();
-            _resultDataGridView.Dock = DockStyle.Fill;
-            _resultDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            _resultDataGridView.DoubleClick += ResultDataGridView_DoubleClick;
-            panelContainer.Controls.Add(_resultDataGridView);
+DatabaseWrapper.GenerateDatabase();
+LogWriter.WriteToLog("program started");
 
 
- private void Results_Load(object sender, EventArgs e)
-        {
-            _resultDataGridView.DataSource = SearchRecords;
-            _resultDataGridView.StretchLastColumn();
-        }
+private readonly DataGridView _resultDataGridView;
+public List<SearchRecord> SearchRecords { get; set; }
+
+_resultDataGridView = DataGridControl.Get();
+_resultDataGridView.Dock = DockStyle.Fill;
+_resultDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+_resultDataGridView.DoubleClick += ResultDataGridView_DoubleClick;
+panelContainer.Controls.Add(_resultDataGridView);
+
+private void Results_Load(object sender, EventArgs e)
+{
+  _resultDataGridView.DataSource = SearchRecords;
+  _resultDataGridView.StretchLastColumn();
+}
+
+public static void StretchLastColumn(this DataGridView dataGridView)
+{
+   var lastColIndex = dataGridView.Columns.Count - 1;
+   var lastCol = dataGridView.Columns[lastColIndex];
+   lastCol.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+}
