@@ -1,0 +1,294 @@
+---------------------------------ANGULAR---------------------
+Angular is typically used for the development of SPA. Angular provides a set of ready-to-use modules that simplify the development of single page applications. Not only this, with features like built-in data streaming, type safety, and a modular CLI,  Angular is regarded as a full-fledged web framework.
+
+@NgModule
+An NgModule class describes how the application parts fit together. 
+Every application has at least one NgModule, the root module that we bootstrap to launch the application.
+@NgModule accepts a metadata object that tells Angular how to compile and launch the application. The properties are:
+
+imports – Modules that the application needs or depends on to run like, the BrowserModule that every application needs to run in a browser.
+declarations – the application's components, which belongs to the NgModule class. We must declare every component in an NgModule class. If we use a component without declaring it, we'll see a clear error message in the browser console.
+bootstrap – the root component that Angular creates and inserts into the index.html host web page. The application will be launched by creating the components listed in this array.
+
+-------------------------------- COMPONENTS AND MODULE--------------------------------------------------
+Components and modules are too often confused with each other. They are, however, not the same, and the implications of one, does not necessarily hold for the other.
+
+Modularity is the partitioning of code into modules of related functionality. In many programming languages, a module is simply a source file. It is common practice that if the source file grows too big, you can split it into two or more source files, and put these into a new directory; while a directory is often not called a module, this kind of decomposition is still modular.
+
+A component, on the other hand, can be composed in different ways with other components to form different programs. That is, there is a separate composition stage, where real people decide which components should be used together.
+
+------------------------------------ COMPONENTS--------------------------------------------------
+In Angular 4, everything is a component. A component controls a patch of screen called a view. 
+
+Components are the most basic building block of an UI in an Angular application. An Angular application is a tree of Angular components. Unlike directives, components always have a template and only one component can be instantiated per an element in a template.
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'simple-component',
+  template: `
+    <div>
+      <p>This is a simple component in Angular 4 with a message {{message}}.</p>
+    </div>
+  `
+})
+
+export class SimpleComponent {
+  message: string;
+  constructor() {
+    this.message = 'Welcome'
+  }
+}
+
+Component decorators
+The main objectives of decorators is to add some metadata to the class that will tell Angular 4 how to process a class. 
+Or in another words, Decorators are functions that modify JavaScript classes. Angular has many decorators that attach metadata to classes so that it knows what those classes mean and how they should work.
+
+
+Component Lifecycle
+A Component/Directive in Angular has lifecycle as Angular creates, updates and destroy them. We can tap into the key moments in that lifecycle and implement lifecycle hook interfaces in the Angular library.
+
+Angular creates a component/directive by calling its constructor. After that Angular calls the lifecycle hook in the below order:
+
+ngOnChanges() - calls when Angular sets or re-sets the data-bound properties. Called before ngOnInit() and whenever one or more data-bound input properties change.
+ngOnInit() - called when Angular initializes the Component. It is called only once.
+ngDoCheck() - Detect and act upon changes that Angular can't or won't detect on its own. It is called immediately after ngOnChanges() and ngOnInit().
+ngAfterContentInit() - Respond after Angular projects external content into the component's view. It is a Component only hook and can not be called for a directive.
+ngAfterContentChecked() - Respond after Angular checks the content projected into the component. Called after the ngAfterContentInit(). It will also be called every subsequent ngDoCheck(). This is a Component-only hook.
+ngAfterViewInit() - Respond after Angular initializes the component's views and child views. This is a Component-only hook.
+ngAfterViewChecked() - Respond after Angular checks the component's views and child views. A component-only hook.
+ngOnDestroy() - Called just before Angular destroys the directive/component. This is the place we can unsubscribe observables and detach event handlers to avoid memory leaks.
+
+If we consider Component in Angular 4, we will have following options to configure.
+selector: - define the name of the HTML element in which our component will live.
+template or templateUrl: - It can be inline string or link an external html file. It allows us to tie logic from our component directly to a view.
+styles: - the styles array for our specific component. We can also link external CSS by styleUrls.
+directives: - another component directives we want to use inside our components.
+providers: - This is the place we are passing the services that we need insider our components.
+
+Immediately after this decorator or right to it, we need to export a class where our variables and functions reside that our component uses.
+
+---------------------------------------------------------------TYPE OF BINDINGS----------------------------
+Property binding - This most common binding is used to set property of an DOM element through expression. This is a one-way data binding which means you can not read the value from this property. We can only set it.
+<img [src]="imageUrl">
+
+Event binding - This is also one-way data binding but the data flows from view to source. It binds an expression to the given element on DOM element and Components.
+<button (click)="onSubmit()">Submit</button>
+
+Two-way binding - Binds both event and property.
+<input [(ngModel)]="name"/>
+
+Attribute binding - Set the value of an attribute on a DOM directly. We must use this attribute binding when there is no element property to bind. For example, consider the ARIA, SVG and table span attributes. They are not property targets. If we use property bindings on them, we will get error.
+<tr><
+  td [attr.colspan]="1 + 1">One-Two</td>
+</tr>
+
+Class binding - Class binding syntax resembles property binding. Instead of an element property between brackets, they start with the prefix class, optionally followed by a dot (.) and the name of a CSS class: [class.class-name]. If the class is already present in the class list then Angular removes it.
+<div class="header" [class.special]="isSpecial">This is a class binding.</div>
+
+Style binding - We can set inline styles with a style binding. The syntax is same as class binding except the prefix which style instead of class. We can also use unit extension at the end.
+<h1 [style.background-color]="isRed ? 'red': 'black'">Heading 1</h1>
+<h1 [style.font-size.em]="isRed ? 2: 1">Heading 1</h1>
+
+------------------------------------PASS DATA BETWEEN COMPONENTS--------------------------------------------------
+
+Angular follows new style of communication via Event Emitters.
+
+Inputs allow us to pass data down to a child Component.
+Outputs allows to pass data up to a parent Component.
+
+Parent Child Components
+You can create as many as component you want
+ng g c child1
+Then you need to add them in the Html of ParentComponent
+<app-child1></app-child1>
+and then using @Input and @Output to pass data between parent and child
+
+Parent to Child: Sharing Data via Input
+This is probably the most common and straightforward method of sharing data. 
+It works by using the @Input() decorator to allow data to be passed via the template.
+
+Child to Parent: Sharing Data via ViewChild
+ViewChild allows a one component to be injected into another, giving the parent access to its attributes and functions. 
+One caveat, however, is that child won’t be available until after the view has been initialized. 
+This means we need to implement the AfterViewInit lifecycle hook to receive the data from the child.
+
+Child to Parent: Sharing Data via Output() 
+Another way to share data is to emit data from the child, which can be listed to by the parent. 
+This approach is ideal when you want to share data changes that occur on things like button clicks, form entires, and other user events.
+In the parent, we create a function to receive the message and set it equal to the message variable.
+In the child, we declare a messageEvent variable with the Output decorator and set it equal to a new event emitter. 
+Then we create a function named sendMessage that calls emit on this event with the message we want to send. 
+Lastly, we create a button to trigger this function.
+
+The parent can now subscribe to this messageEvent that’s outputted by the child component, 
+then run the receive message function whenever this event occurs.
+
+Unrelated Components: Sharing Data with a Service
+When passing data between components that lack a direct connection, such as siblings, grandchildren, etc, you should you a shared service. 
+When you have data that should aways been in sync, I find the RxJS BehaviorSubject very useful in this situation.
+
+----------------------------------- ROUTING--------------------------------------------
+@RouteConfig{(…)} is used for routing config
+We can configure our application routes as array of objects and pass it to the Angular's RouterModule.forRoot.
+
+const routes: Routes = [
+  { path: 'component-one', component: ComponentOne },  
+  { path: 'component-two', component: ComponentTwo }
+  { path: '', redirectTo: 'component-one', pathMatch: 'full' },
+];
+
+export const routing = RouterModule.forRoot(routes);
+
+We then import our routing configuration in the root of our application.
+@NgModule({
+  imports: [    
+    BrowserModule,
+    routing
+  ],
+}
+
+How to link routes in HTML?
+To add link to one of the routes, we should use RouterLink directive in HTML. 
+This directive accepts an array. The first param is the name of the route and the second param is the parameters that we want to pass with the route.
+
+<a [routerLink]="['component-one', routeParams]"></a>
+
+The <router-outlet></router-outlet> acts as a placeholder for component. Angular dynamically adds the component for the route being activated into this.
+
+---------------------------------- QUERY PARAMS AND ROUTE PARAMS------------------------------------------------------------------
+What is the difference between <code>queryParams</code> and <code>routeParams</code>?
+The key difference between query parameters and route parameters is that route parameters are essential to determining route, 
+whereas query parameters are optional. The optional parameters are equal to /product-list?page=2 where as route params are /product-list/2.
+
+//Pass query params in router link
+<a [routerLink]="['product-list']" [queryParams]="{ page: 2 }">Go to Page 2</a>
+
+//query parameters programmatically
+this.router.navigate(['/product-list'], { queryParams: { page: pageNum } });
+
+To read the query paramters, we need to subscribe to queryParams in the ActivatedRoute.
+
+ngOnInit() {
+  this.sub = this.route.queryParams.subscribe(params => {
+      this.page = +params['page'] || 0;
+  });
+}
+
+What is Route Guards?
+To control whether the user can navigate to or away from a given route, we should use Route Guards. Route guards can also control whether a user can leave a certain route. 
+For example, say the user has typed information into a form on the page, but has not submitted the form. If they were to leave the page, they would lose the information. 
+We may want to prompt the user if the user attempts to leave the route without submitting or saving the information.
+
+In order to use route guards, we must register them with the specific routes we want them to run for. In our route config we can add our guards to that route:
+
+const routes: Routes = [
+{
+    path: 'restricted',
+    component: AccountPage,
+    canActivate: [ AuthRouteGuard ],
+    canDeactivate: [ SaveFormsGuard ]
+}
+  
+Now AuthRouteGuard will be checked by the router when activating the accounts route, and SaveFormsGuard will be checked when leaving that route. The following code implements the canActivate interface.
+
+----------------------------------- DIRECTIVE-------------------------------------
+What is Directive in Angular 4? How it differs from Components?
+Directives allow us to attach behaviour to elements in the DOM, for example, doing something on mouse over or click. 
+In Angular, a Directive decorator (@Directive) is used to mark a class as an Angular directive and provides additional metadata that determines how the directive should be processed. 
+Below are the metadata properties of a directive.
+
+Type of Directives
+Structural directives change the DOM layout by adding and removing DOM elements. Structural directives are easy to recognize. 
+An asterisk (*) precedes the directive attribute name as in this example.For example, *ngIf and *ngFor
+Attribute directives change the appearance or behavior of an element. . For example, *ngStyle and *ngClass
+Components are basically directives with a template.
+
+---------------- SERVICE-------------------------------------
+Services in Angular are Javascript functions along with its associated properties and methods. A service can be injected into components via Dependency Injection.
+A Service class should be decorated with @Injectable() decorator and should be included in the providers array in NgModule.
+
+The main objective of a service is to organize and share business logic, models, or data and functions with different components of an Angular application
+
+Components shouldn't fetch or save data directly and they certainly shouldn't knowingly present fake data. They should focus on presenting data and delegate data access to a service.
+
+What are all the uses of a service?
+Services encapsulates business logic and separates them from UI concerns or the controller concerns, which governs them both.
+Services focus on functionality thus benefits in maintainability. 
+The separation of UI logic from business logic is intended to reduce the coupling between the UI layer and the Model layer, 
+leading to a cleaner design that is easier to develop, test, and maintain.
+
+---------------------PIPE-----------------------------------
+Pipes are equivalent of filters in Angular 1.x. Pipes are functions that returns a value and are used to modify or format a value in the template.
+
+a pipe start with the pipe (|) symbol after the value and any paramter should be seprated with the colon (:) symbol. We can also chain multiple pipes.
+myValue | myPipe:param1:param2 | mySecondPipe:param1
+To create a custom pipe, we should decorate a class with @Pipe decorator.
+
+import { Pipe, PipeTransform } from 'angular2/core';
+
+@Pipe({  name : 'removeSpaces'
+})
+export class RemoveSpaces implements PipeTransform {  transform(value){
+  return value.replace(/ /g, '');
+  }
+}
+
+What is Pure and Impure Pipes?
+Pure pipes are stateless that flow input date without remembering anything or causing detectable side-effects. 
+Pipes are pure by default, hence most pipes are pure. We can make a pipe impure by setting its pure flag to false. 
+Angular executes a pure pipe only when it detects a pure change to the input value. 
+A pure change is either a change to a primitive input value or a changed object reference.
+
+Impure pipes are those which can manage the state of the data they transform. 
+A pipe that creates an HTTP request, stores the response and displays the output, is a impure or stateful pipe. Stateful Pipes should be used cautiously. 
+Angular provides AsyncPipe, which is stateful. In the following code, the pipe only calls the server when the request URL changes and it caches the server response. 
+The code uses the Angular http client to retrieve data:
+
+---------------------------------------REDUX--------------------------------------
+What is Redux and <code>@ngRx</code>?
+
+Redux is an application state manager for JavaScript applications, and keeps with the core principles of the Flux-architecture by having a unidirectional data flow in our application. 
+Redux applications have only one global, read-only application state. 
+This state is calculated by "reducing" over a collection or stream of actions that update it in controlled ways.
+
+@ngrx is a set of modules that implement the same way of managing state as well as some of the middleware and tools in the Redux ecosystem. 
+In other way, ngrx is a collection of reactive libraries for angular, containing a redux implementation and many other useful libraries.
+
+Using this technique, we keep our application state in Store and everything saved in the store is read only. 
+The only way to change the state is to emit an action, an object describing what happened.
+
+Observables in Angular?
+Observable is proposed standard for managing async data. It is not Angular specific BTW
+Observables open up a continuous channel of communication in which multiple values of data can be emitted over time. 
+From this we get a pattern of dealing with data by using array-like operations to parse, modify and maintain data. 
+Angular uses observables extensively - we'll see them in the HTTP service and the event system.
+
+To use observables, Angular uses a third-party library called Reactive Extensions (RxJS).
+
+-----------------------------------Security threads---------------------------------------------
+How to prevent security threads in Angular App? What are all the ways we could secure our App?
+Some of them are:
+
+Avoid using/injecting dynamic HTML content to your component.
+If using external HTML which is coming from database or somewhere outside the application, sanitize it before using.
+Try not to put external urls in the application unless it is trusted. Avoid url re-direction unless it is trusted.
+Consider using AOT compilation or offline compilation.
+Try to prevent XSRF attack by restricting the api and use of the app for known or secure environment/browsers.
+
+-----------------How to optimize Angular app---------------------------------------------------------
+Consider lazy loading instead of fully bundled app if the app size is more.
+Make sure that any 3rd party library, which is not used, is removed from the application.
+Have all dependencies and dev-dependencies are clearly separated.
+Make sure the application doesn't have un-necessary import statements.
+Make sure the application is bundled, uglified, and tree shaking is done.
+Consider AOT compilation.
+
+Explain AOT in Angular?
+Every Angular application requires a compilation process before they can run. The initial compiler is called JiT (Just-in-Time) compiler. As for AoT, it stands for the Ahead-of-Time compiler. Compared to the JiT compilation performed by Angular at run-time, AoT provides a smaller bundle with faster rendering in the browser.
+
+The gist of AoT is moving the compilation from run-time to the building process. That means, first we can remove the JiT compiler from the bundle to have a smaller build, and second, the browser can execute the code without waiting for JiT in the run-time which leads to a faster rendering speed. Besides, AoT compiler also inlines HTML templates and CSS files and help reduce the amount of asynchronous requests sent by the application.
+
+However, AoT is not perfect. The main limitation is that AoT, due to the way it compiles the raw code, cannot be used with common code patterns, for example, default exports from modules, template literals for templates, and functions in providers, routes, or declarations. Another problem with AoT is that when the application reaches certain complexity, the AoT bundle compared to JiT bundle can actually takes up more space.
+
+We can generate a build in AoT by using the Angular Cli comment ng build --aot or ng build --prod.
