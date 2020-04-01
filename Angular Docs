@@ -1,5 +1,7 @@
 ---------------------------------ANGULAR---------------------
-Angular is typically used for the development of SPA. Angular provides a set of ready-to-use modules that simplify the development of single page applications. Not only this, with features like built-in data streaming, type safety, and a modular CLI,  Angular is regarded as a full-fledged web framework.
+Angular is typically used for the development of SPA. Angular provides a set of ready-to-use modules that simplify the development of 
+single page applications. Not only this, with features like built-in data streaming, type safety, and a modular CLI,  
+Angular is regarded as a full-fledged web framework.
 
 @NgModule
 An NgModule class describes how the application parts fit together. 
@@ -7,15 +9,23 @@ Every application has at least one NgModule, the root module that we bootstrap t
 @NgModule accepts a metadata object that tells Angular how to compile and launch the application. The properties are:
 
 imports – Modules that the application needs or depends on to run like, the BrowserModule that every application needs to run in a browser.
-declarations – the application's components, which belongs to the NgModule class. We must declare every component in an NgModule class. If we use a component without declaring it, we'll see a clear error message in the browser console.
-bootstrap – the root component that Angular creates and inserts into the index.html host web page. The application will be launched by creating the components listed in this array.
+declarations – the application's components, which belongs to the NgModule class. We must declare every component in an NgModule class.
+
+If we use a component without declaring it, we'll see a clear error message in the browser console.
+bootstrap – the root component that Angular creates and inserts into the index.html host web page. 
+The application will be launched by creating the components listed in this array.
 
 -------------------------------- COMPONENTS AND MODULE--------------------------------------------------
-Components and modules are too often confused with each other. They are, however, not the same, and the implications of one, does not necessarily hold for the other.
+Components and modules are too often confused with each other. They are, however, not the same, and the implications of one, 
+does not necessarily hold for the other.
 
-Modularity is the partitioning of code into modules of related functionality. In many programming languages, a module is simply a source file. It is common practice that if the source file grows too big, you can split it into two or more source files, and put these into a new directory; while a directory is often not called a module, this kind of decomposition is still modular.
+Modularity is the partitioning of code into modules of related functionality. 
+In many programming languages, a module is simply a source file. 
+It is common practice that if the source file grows too big, you can split it into two or more source files, 
+and put these into a new directory; while a directory is often not called a module, this kind of decomposition is still modular.
 
-A component, on the other hand, can be composed in different ways with other components to form different programs. That is, there is a separate composition stage, where real people decide which components should be used together.
+A component, on the other hand, can be composed in different ways with other components to form different programs. 
+That is, there is a separate composition stage, where real people decide which components should be used together.
 
 ------------------------------------ COMPONENTS--------------------------------------------------
 In Angular 4, everything is a component. A component controls a patch of screen called a view. 
@@ -42,7 +52,8 @@ export class SimpleComponent {
 
 Component decorators
 The main objectives of decorators is to add some metadata to the class that will tell Angular 4 how to process a class. 
-Or in another words, Decorators are functions that modify JavaScript classes. Angular has many decorators that attach metadata to classes so that it knows what those classes mean and how they should work.
+Or in another words, Decorators are functions that modify JavaScript classes. Angular has many decorators that attach metadata to 
+classes so that it knows what those classes mean and how they should work.
 
 
 Component Lifecycle
@@ -52,10 +63,15 @@ Angular creates a component/directive by calling its constructor. After that Ang
 
 ngOnChanges() - calls when Angular sets or re-sets the data-bound properties. Called before ngOnInit() and whenever one or more data-bound input properties change.
 ngOnInit() - called when Angular initializes the Component. It is called only once.
-ngDoCheck() - Detect and act upon changes that Angular can't or won't detect on its own. It is called immediately after ngOnChanges() and ngOnInit().
-ngAfterContentInit() - Respond after Angular projects external content into the component's view. It is a Component only hook and can not be called for a directive.
-ngAfterContentChecked() - Respond after Angular checks the content projected into the component. Called after the ngAfterContentInit(). It will also be called every subsequent ngDoCheck(). This is a Component-only hook.
-ngAfterViewInit() - Respond after Angular initializes the component's views and child views. This is a Component-only hook.
+ngDoCheck() - Detect and act upon changes that Angular can't or won't detect on its own. 
+              It is called immediately after ngOnChanges() and ngOnInit().
+ngAfterContentInit() - Respond after Angular projects external content into the component's view. 
+                       It is a Component only hook and can not be called for a directive.
+ngAfterContentChecked() - Respond after Angular checks the content projected into the component. 
+                          Called after the ngAfterContentInit(). It will also be called every subsequent ngDoCheck(). 
+                          This is a Component-only hook.
+ngAfterViewInit() - Respond after Angular initializes the component's views and child views. 
+                    This is a Component-only hook.
 ngAfterViewChecked() - Respond after Angular checks the component's views and child views. A component-only hook.
 ngOnDestroy() - Called just before Angular destroys the directive/component. This is the place we can unsubscribe observables and detach event handlers to avoid memory leaks.
 
