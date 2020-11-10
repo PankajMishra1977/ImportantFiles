@@ -66,6 +66,55 @@ using System.ComponentModel.DataAnnotations;
         public string Surname { get; set; }
 }
     
+    --------------------------------------------------------------------------------------------------------------------
+    public class AppContext : DbContext
+    {
+        public DbSet<UserEntity> Users { get; set; }
+       
+       public AppContext() : base()
+        { }
+
+        public AppContext(DbContextOptions<AppContext> options)
+            : base(options)
+        {
+
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            IConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
+                .SetBasePath(Path.Combine(Directory.GetCurrentDirectory()))
+                .AddJsonFile("appsettings.json");
+
+            IConfiguration configuration = configurationBuilder.Build();
+
+            optionsBuilder.UseSqlServer(configuration.GetConnectionString("AppContext"));
+
+            base.OnConfiguring(optionsBuilder);
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.SeedData();
+        }
+
+        public override int SaveChanges()
+        {
+            var entities = from e in ChangeTracker.Entries()
+                           where e.State == EntityState.Added
+                               || e.State == EntityState.Modified
+                           select e.Entity;
+            foreach (var entity in entities)
+            {
+                var validationContext = new ValidationContext(entity);
+                Validator.ValidateObject(entity, validationContext);
+            }
+
+            return base.SaveChanges();
+        }
+    }
+}
+
 --------------------------------------------------------------------------------------------------------------------------------------------
 using YourEntitiesNamespace;
 using System;
