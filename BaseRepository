@@ -1,0 +1,301 @@
+
+
+
+namespace Entities
+{
+    using System;
+    using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
+    public class IdentityEntity
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int Id { get; set; }
+
+        public void Validate()
+        {
+            var validationContext = new ValidationContext(this);
+            Validator.ValidateObject(
+                this,
+                validationContext,
+                validateAllProperties: true);
+            return;
+        }
+
+        public string TrappedValidate()
+        {
+            try
+            {
+                Validate();
+                return null;
+            }
+            catch (ValidationException ex)
+            {
+                return ex.Message;
+            }
+            catch (Exception ex)
+            {
+                return $"Validation Exception - {ex.Message}";
+            }
+        }
+    }
+}
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+
+using System.ComponentModel.DataAnnotations;
+    using System.ComponentModel.DataAnnotations.Schema;
+
+    [Table("Users")]
+    public class UserEntity : IdentityEntity
+    {
+        [Required]
+        [MaxLength(250)]
+        public string Email { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        public string JobTitle { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        public string Forename { get; set; }
+
+        [MaxLength(50)]
+        public string Surname { get; set; }
+}
+    
+--------------------------------------------------------------------------------------------------------------------------------------------
+using YourEntitiesNamespace;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
+
+public interface IBaseRepository<T> where T : IdentityEntity
+{
+     Task<T> GetByIdAsync(int id);
+     Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate);
+     Task AddAsync(T entity);
+     Task UpdateAsync(T entity);
+     Task UpdateAsync(T t, int entryId);
+     Task RemoveAsync(T entity);
+     Task<IEnumerable<T>> GetAllAsync();
+     Task<IEnumerable<T>> GetWhereAsync(Expression<Func<T, bool>> predicate);
+     Task<int> CountAllAsync();
+     Task<int> CountWhereAsync(Expression<Func<T, bool>> predicate);
+}
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+namespace Repositories
+{
+    using YourEntitiesNamespace;;
+    using Microsoft.EntityFrameworkCore;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Linq.Expressions;
+    using System.Threading.Tasks;
+
+    public class BaseRepository<T> : IBaseRepository<T> where T : IdentityEntity
+    {
+        protected readonly CodsContext _context;
+               
+        public BaseRepository(CodsContext context)
+        {
+            _context = context;
+        }
+
+        public Task<T> GetByIdAsync(int id) => _context.Set<T>().FindAsync(id);
+
+        public Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+            => _context.Set<T>().FirstOrDefaultAsync(predicate);
+
+        public async Task AddAsync(T entity)
+        {
+            await _context.Set<T>().AddAsync(entity);
+            await _context.SaveChangesAsync();
+        }
+
+        public Task UpdateAsync(T entity)
+        {
+            // In case AsNoTracking is used
+            _context.Entry(entity).State = EntityState.Modified;
+            return _context.SaveChangesAsync();
+        }
+
+        public Task UpdateAsync(T t, int entryId)
+        {
+            var local = _context.Set<T>()
+                .Local
+                .FirstOrDefault(entry => entry.Id.Equals(entryId));
+
+            if (local != null)
+            {
+                _context.Entry(local).State = EntityState.Detached;
+            }
+
+            _context.Entry(t).State = EntityState.Modified;
+            return _context.SaveChangesAsync();
+        }
+
+        public Task RemoveAsync(T entity)
+        {
+            _context.Set<T>().Remove(entity);
+            return _context.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await _context.Set<T>().ToListAsync();
+        }
+
+        public async Task<IEnumerable<T>> GetWhereAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _context.Set<T>().Where(predicate).ToListAsync();
+        }
+
+        public Task<int> CountAllAsync() => _context.Set<T>().CountAsync();
+
+        public Task<int> CountWhereAsync(Expression<Func<T, bool>> predicate)
+            => _context.Set<T>().CountAsync(predicate);
+    }
+}
+
+ -------------------------------------------------------------------------------------------------------------------
+  public interface IUserRepository : IBaseRepository<UserEntity>
+    {
+      
+    }
+    
+   -------------------------------------------------------------------------------------------------------------------
+    using Cods.Entities;
+    using Cods.Repositories.Contracts;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.Logging;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+
+    public class UserRepository : BaseRepository<UserEntity>, IUserRepository
+    {
+          private readonly DbSet<UserEntity> _set;
+        private readonly ILogger _logger;
+
+        public UserRepository(CodsContext context, ILogger<UserRepository> logger) : base(context)
+        {
+            _set = _context.Set<UserEntity>();
+            _logger = logger;
+        }
+    }
+    
+   -------------------------------------------------------------------------------------------------------------------
+
+
+ public interface IUserService
+    {
+        Task<List<UserViewModel>> GetAllUsersAsync();
+        Task AddUserAsync(UserViewModel userModel);
+        Task<UserViewModel> GetByIdAsync(int id);
+        Task UpdateUserAsync(UserViewModel userViewModel);
+    }
+    
+    -------------------------------------------------------------------------------------------------------------------
+     public class UserService : IUserService
+    {
+        protected IUserRepository _userRepository;
+        private readonly ILogger _logger;
+
+        public UserService(IUserRepository userRepository, ILogger<UserService> logger)
+        {
+            _userRepository = userRepository;
+            _logger = logger;
+        }
+        
+        IMapper GetUserMapper()
+        {
+            var config = new MapperConfiguration(cfg => {
+                cfg.CreateMap<UserEntity, UserViewModel>();
+            });
+
+            return config.CreateMapper();
+        }
+        
+        public async Task<List<UserViewModel>> GetAllUsersAsync()
+        {
+            try
+            {
+                IMapper iMapper = GetUserMapper();
+
+                List<UserViewModel> userViewModels = new List<UserViewModel>();
+                var allUsers = await _userRepository.GetAllAsync();
+                foreach (var user in allUsers)
+                {
+                    var destination = iMapper.Map<UserEntity, UserViewModel>(user);
+                    userViewModels.Add(destination);
+                }
+
+                return userViewModels.OrderByDescending(x => x.Id).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.GetFullExceptionMessage());
+                return null;
+            }
+        }
+        
+         public async Task<UserViewModel> GetByIdAsync(int userId)
+        {
+            try
+            {
+                IMapper iMapper = GetUserMapper();
+                UserEntity user = await _userRepository.GetByIdAsync(userId);
+                var userViewModel = iMapper.Map<UserEntity, UserViewModel>(user);
+                return userViewModel;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.GetFullExceptionMessage());
+                return null;
+            }
+        }
+        
+        public async Task AddUserAsync(UserViewModel userModel)
+        {
+            try
+            {
+                var config = new MapperConfiguration(cfg => {
+                    cfg.CreateMap<UserViewModel, UserEntity>();
+                });
+
+                IMapper mapper = config.CreateMapper();
+            
+                UserEntity entity = iMapper.Map<UserViewModel, UserEntity>(userModel);
+                await _userRepository.AddAsync(entity);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.GetFullExceptionMessage());
+            }
+        }
+        
+        public async Task UpdateUserAsync(UserViewModel userModel)
+        {
+            try
+            {
+             var config = new MapperConfiguration(cfg => {
+                    cfg.CreateMap<UserViewModel, UserEntity>();
+                });
+
+                IMapper mapper = config.CreateMapper();
+            
+                UserEntity entity = iMapper.Map<UserViewModel, UserEntity>(userModel);
+                await _userRepository.UpdateAsync(entity, userModel.Id);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.GetFullExceptionMessage());
+            }
+        }
+        
